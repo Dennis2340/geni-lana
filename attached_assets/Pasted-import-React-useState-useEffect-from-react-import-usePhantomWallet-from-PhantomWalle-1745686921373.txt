@@ -1,0 +1,257 @@
+import React, { useState, useEffect } from "react";
+import { usePhantomWallet } from "./PhantomWallet";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { apiRequest } from "@/lib/queryClient";
+
+interface TransactionPreviewProps {
+  riskLevel: number;
+  onConfirm: () => Promise<void>;
+  onCancel: () => void;
+}
+
+interface SimulationResult {
+  wallet: string;
+  riskLevel: number;
+  priceRange: {
+    minPrice: string;
+    maxPrice: string;
+    rangePct: number;
+  };
+  feeTier: string;
+  estimatedAPR: string;
+  networkFee: number;
+  impactUSD: string;
+}
+
+const TransactionPreview: React.FC<TransactionPreviewProps> = ({
+  riskLevel,
+  onConfirm,
+  onCancel
+}) => {
+  const { connected, publicKey, connect } = usePhantomWallet();
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [simulation, setSimulation] = useState<SimulationResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Default values in case simulation fails
+  const minPrice = simulation?.priceRange.minPrice || "0.00";
+  const maxPrice = simulation?.priceRange.maxPrice || "0.00";
+  const rangePct = simulation?.priceRange.rangePct || 0;
+  const estimatedApr = simulation?.estimatedAPR || "0.0";
+  const feeTier = simulation?.feeTier || "0.0%";
+
+  // Fetch simulation data from the server
+  useEffect(() => {
+    const fetchSimulation = async () => {
+      if (!connected || !publicKey) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+
+        const response = await apiRequest<{
+          success: boolean;
+          simulation?: SimulationResult;
+          error?: string;
+        }>({
+          method: "POST", 
+          url: "/api/meteora/simulate", 
+          data: {
+            wallet: publicKey.toString(),
+            riskLevel
+          }
+        });
+
+        if (response && response.success && response.simulation) {
+          setSimulation(response.simulation);
+          setError(null);
+        } else {
+          setError(response?.error || "Failed to simulate transaction");
+          toast.error("Failed to simulate transaction");
+        }
+      } catch (error) {
+        console.error("Simulation error:", error);
+        setError("Failed to connect to simulation service");
+        toast.error("Failed to connect to simulation service");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSimulation();
+  }, [connected, publicKey, riskLevel]);
+
+  useEffect(() => {
+    const initWallet = async () => {
+      if (!connected) {
+        try {
+          await connect();
+        } catch (error) {
+          console.error("Error connecting to wallet:", error);
+        }
+      }
+    };
+
+    initWallet();
+  }, []);
+
+  const handleConfirmClick = async () => {
+    if (!connected) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
+    setIsConfirming(true);
+    try {
+      await onConfirm();
+    } catch (error) {
+      console.error("Transaction confirmation error:", error);
+      toast.error("Transaction failed. Please try again.");
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  // Calculate SOL to USD value for fees
+  const solPrice = 145.87; // Current SOL price
+  const networkFeeDollars = simulation?.networkFee ? (simulation.networkFee * solPrice).toFixed(3) : "0.001";
+
+  // Calculate token amounts based on a $100 investment
+  const usdcAmount = 50.00;
+  const solAmount = (50 / solPrice).toFixed(5);
+
+  return (
+    <div className="mt-4 bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+      <div className="bg-gradient-to-r from-blue-900/40 to-gray-800 px-4 py-3 border-b border-gray-700">
+        <h4 className="font-medium text-white flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 2H8.828a2 2 0 00-1.414.586L6.293 3.707A1 1 0 015.586 4H4zm5 5a1 1 0 10-2 0v4a1 1 0 102 0V9zm4 1a1 1 0 100 2h1a1 1 0 100-2h-1z" clipRule="evenodd" />
+          </svg>
+          Transaction Preview
+        </h4>
+      </div>
+
+      {isLoading ? (
+        <div className="p-8 flex justify-center items-center">
+          <svg className="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      ) : error ? (
+        <div className="p-6 text-center">
+          <div className="text-red-400 mb-2">Error simulating transaction</div>
+          <div className="text-sm text-gray-400">{error}</div>
+        </div>
+      ) : (
+        <>
+          <div className="p-5 space-y-4">
+            <div className="flex justify-between items-center pb-2 border-b border-gray-700">
+              <span className="text-gray-400">Pool</span>
+              <div className="flex items-center">
+                <div className="flex -space-x-1 mr-2">
+                  <img src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png" alt="USDC" className="h-5 w-5 rounded-full ring-1 ring-gray-900" />
+                  <img src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png" alt="SOL" className="h-5 w-5 rounded-full ring-1 ring-gray-900" />
+                </div>
+                <span className="text-white font-medium">USDC-SOL <span className="text-sm font-normal text-gray-400">({feeTier})</span></span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div className="text-xs text-gray-500 mb-1">You pay</div>
+                <div className="flex items-center">
+                  <img src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png" alt="USDC" className="h-4 w-4 rounded-full mr-1" />
+                  <span className="font-medium">{usdcAmount.toFixed(2)} USDC</span>
+                </div>
+              </div>
+
+              <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div className="text-xs text-gray-500 mb-1">You pay</div>
+                <div className="flex items-center">
+                  <img src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png" alt="SOL" className="h-4 w-4 rounded-full mr-1" />
+                  <span className="font-medium">{solAmount} SOL</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg p-3 bg-blue-900/20 border border-blue-800/30">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-gray-300">Price Range</span>
+                <span className="font-medium text-white">${minPrice} - ${maxPrice}</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-1.5 mb-1">
+                <div 
+                  className="bg-gradient-to-r from-blue-600 to-blue-400 h-1.5 rounded-full" 
+                  style={{ width: `${Math.min(100, rangePct*2)}%` }}
+                ></div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>-{rangePct}%</span>
+                <span>Current: $145.87</span>
+                <span>+{rangePct}%</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Estimated APR</span>
+                <span className="text-green-400 font-medium">{estimatedApr}%</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">IL Risk</span>
+                <div className="flex items-center">
+                  <span>{riskLevel}%</span>
+                  <span className="ml-1 text-xs text-gray-500">(if price moves outside range)</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Network Fee</span>
+                <div className="flex items-center">
+                  <span>{simulation?.networkFee.toFixed(8) || "0.000005"} SOL</span>
+                  <span className="ml-1 text-xs text-gray-500">(≈${networkFeeDollars})</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Price Impact</span>
+                <span className="text-gray-300">{simulation?.impactUSD || "$0.20"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex border-t border-gray-700">
+            <button 
+              className="flex-1 py-3 text-gray-400 hover:bg-gray-700 transition font-medium"
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+            <button 
+              className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium hover:from-blue-500 hover:to-blue-400 transition border-l border-gray-700 disabled:opacity-50 disabled:hover:from-blue-600 disabled:hover:to-blue-500"
+              onClick={handleConfirmClick}
+              disabled={isConfirming || !connected}
+            >
+              {isConfirming ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Processing...
+                </span>
+              ) : (
+                "Confirm & Sign"
+              )}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default TransactionPreview;

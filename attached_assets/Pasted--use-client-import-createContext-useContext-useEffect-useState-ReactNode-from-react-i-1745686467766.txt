@@ -1,0 +1,135 @@
+
+"use client";
+
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { PublicKey } from "@solana/web3.js";
+import { toast } from "sonner";
+
+declare global {
+  interface Window {
+    phantom?: {
+      solana?: {
+        isPhantom?: boolean;
+        connect: () => Promise<{ publicKey: PublicKey }>;
+        disconnect: () => Promise<void>;
+        signTransaction: <T>(transaction: T) => Promise<T>;
+        signAllTransactions: <T>(transactions: T[]) => Promise<T[]>;
+        signAndSendTransaction: <T>(transaction: T) => Promise<string>;
+        signMessage: (message: Uint8Array) => Promise<{ signature: Uint8Array }>;
+        publicKey: PublicKey | null;
+      };
+    };
+  }
+}
+
+interface PhantomWalletContextType {
+  phantom: any;
+  publicKey: PublicKey | null;
+  connected: boolean;
+  connecting: boolean;
+  connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
+}
+
+const PhantomWalletContext = createContext<PhantomWalletContextType | undefined>(undefined);
+
+export function PhantomWalletProvider({ children }: { children: ReactNode }) {
+  const [phantom, setPhantom] = useState<any>(null);
+  const [publicKey, setPublicKey] = useState<PublicKey | null>(null);
+  const [connected, setConnected] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+
+  useEffect(() => {
+    const initWallet = async () => {
+      try {
+        // Check if phantom exists in window
+        if (!window.phantom?.solana) {
+          toast.error("Please install Phantom wallet extension", {
+            description: "Visit phantom.app to install",
+            duration: 5000
+          });
+          return;
+        }
+        
+        const provider = window.phantom.solana;
+        
+        if (provider?.isPhantom) {
+          setPhantom(provider);
+          
+          // Check if already connected
+          if (provider.publicKey) {
+            setPublicKey(provider.publicKey);
+            setConnected(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error initializing wallet:", error);
+        toast.error("Failed to initialize wallet");
+      }
+    };
+
+    initWallet();
+  }, []);
+
+  const connect = async () => {
+    try {
+      setConnecting(true);
+      const provider = window.phantom?.solana;
+
+      if (!provider?.isPhantom) {
+        throw new Error("Phantom wallet not installed");
+      }
+
+      const resp = await provider.connect();
+      setPublicKey(resp.publicKey);
+      setConnected(true);
+      setPhantom(provider);
+      toast.success("Wallet connected successfully");
+    } catch (error) {
+      console.error("Error connecting to wallet:", error);
+      toast.error("Failed to connect wallet");
+      throw error;
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  const disconnect = async () => {
+    try {
+      const provider = window.phantom?.solana;
+      if (provider?.isPhantom) {
+        await provider.disconnect();
+        setPhantom(null);
+        setPublicKey(null);
+        setConnected(false);
+        toast.success("Wallet disconnected");
+      }
+    } catch (error) {
+      console.error("Error in wallet disconnect:", error);
+      toast.error("Failed to disconnect wallet");
+    }
+  };
+
+  return (
+    <PhantomWalletContext.Provider
+      value={{
+        phantom,
+        publicKey,
+        connected,
+        connecting,
+        connect,
+        disconnect,
+      }}
+    >
+      {children}
+    </PhantomWalletContext.Provider>
+  );
+}
+
+export function usePhantomWallet() {
+  const context = useContext(PhantomWalletContext);
+  if (context === undefined) {
+    throw new Error("usePhantomWallet must be used within a PhantomWalletProvider");
+  }
+  return context;
+}

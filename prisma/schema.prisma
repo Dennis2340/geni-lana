@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  publicKey     String   @unique
+  username      String   @unique
+  email         String   @unique
+  createdAt     DateTime @default(now())
+  emailNotifications EmailNotification[]
+  chats         Chat[]
+  messages      Message[]
+  transactions  Transaction[]
+  liquidityPositions LiquidityPosition[]
+}
+
+model EmailNotification {
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  username        String?
+  schedule        String   @default("daily")
+  riskLevel       Int      @default(5)
+  notificationsEnabled Boolean @default(true)
+  userWallet      String?
+  topicPreferences String[] @default([])
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
+}
+
+model Chat {
+  id              Int      @id @default(autoincrement())
+  userPublicKey   String
+  user            User     @relation(fields: [userPublicKey], references: [publicKey])
+  title           String   @default("New Chat")
+  createdAt       DateTime @default(now())
+  messages        Message[]
+}
+
+model Message {
+  id              Int      @id @default(autoincrement())
+  chatId          Int
+  chat            Chat     @relation(fields: [chatId], references: [id])
+  userPublicKey   String
+  user            User     @relation(fields: [userPublicKey], references: [publicKey])
+  content         String
+  sentAt          DateTime @default(now())
+}
+
+model Transaction {
+  id              Int      @id @default(autoincrement())
+  userPublicKey   String
+  user            User     @relation(fields: [userPublicKey], references: [publicKey])
+  transactionData Json
+  createdAt       DateTime @default(now())
+}
+
+model LiquidityPosition {
+  id              Int      @id @default(autoincrement())
+  userPublicKey   String
+  user            User     @relation(fields: [userPublicKey], references: [publicKey])
+  positionData    Json
+  riskLevel       Int
+  createdAt       DateTime @default(now())
+}

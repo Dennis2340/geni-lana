@@ -1,0 +1,71 @@
+"use client";
+
+import * as React from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Toaster, toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { usePhantomWallet } from "./components/PhantomWallet";
+
+const links = [
+  { label: "Home", path: "/" },
+  { label: "Chat", path: "/chat" },
+  { label: "Market", path: "/market" },
+  { label: "Account", path: "/account" },
+];
+
+export default function AuthPage() {
+  const router = useRouter();
+  const { connected, connect } = usePhantomWallet();
+
+  const handleAuthSuccess = async () => {
+    toast.success("Wallet connected successfully!");
+    router.push("/chat");
+  };
+
+  useEffect(() => {
+    if (connected) {
+      handleAuthSuccess();
+    }
+  }, [connected]);
+
+  return (
+    
+      <main className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] pt-16 p-4 sm:p-6 bg-black">
+        <div className="text-center space-y-6 max-w-3xl">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white">Welcome to Genilana</h1>
+          <p className="text-lg sm:text-xl text-gray-400">
+            Your AI-powered Solana DeFi Assistant. Connect your Phantom wallet to chat, manage liquidity, and receive smart tips.
+          </p>
+        </div>
+        <div className="mt-10 w-full max-w-md">
+          <Card className="bg-gray-900 border-gray-800 hover:bg-gray-850 transition-colors shadow-md">
+            <CardHeader>
+              <CardTitle className="text-xl text-white">Connect Wallet</CardTitle>
+              <CardDescription className="text-gray-400">
+                Sign in with your Phantom wallet to access Genilana’s features.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={connect}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={connected}
+              >
+                {connected ? "Wallet Connected" : "Connect with Phantom"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            className: "bg-[rgba(42,43,54,0.8)] text-white border border-[rgba(255,255,255,0.1)] shadow-lg",
+            duration: 2500,
+          }}
+        />
+      </main>
+   
+  );
+}

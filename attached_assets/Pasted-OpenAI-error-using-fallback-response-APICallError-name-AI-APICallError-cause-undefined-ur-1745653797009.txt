@@ -1,0 +1,18 @@
+OpenAI error, using fallback response: 
+APICallError {name: "AI_APICallError", cause: undefined, url: "https://api.openai.com/v1/chat/completions", requestBodyValues: {…}, statusCode: 401, …}
+cause: undefined
+data: Object
+isRetryable: false
+name: "AI_APICallError"
+requestBodyValues: Object
+responseBody: "{↵ "error": {↵ "message": "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.",↵ "type": "invalid_request_error",↵ "param": null,↵ "code": null↵ }↵}↵"
+responseHeaders: Object
+statusCode: 401
+url: "https://api.openai.com/v1/chat/completions"
+message: "You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys."
+stack: "AI_APICallError: You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.↵ at https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BNCV4TRX.js?v=9af329c3:931:14↵ at async postToApi (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-BNCV4TRX.js?v=9af329c3:842:28)↵ at async OpenAIChatLanguageModel.doGenerate (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@ai-sdk_openai.js?v=9af329c3:605:9)↵ at async fn (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/ai.js?v=9af329c3:7521:30)↵ at async https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/ai.js?v=9af329c3:3908:22↵ at async _retryWithExponentialBackoff (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/ai.js?v=9af329c3:3725:12)↵ at async fn (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/ai.js?v=9af329c3:7477:32)↵ at async https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/ai.js?v=9af329c3:3908:22↵ at async handleSend (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/src/components/Chat.tsx?t=1745653354502:111:24)"
+get stack: ƒ ()
+set stack: ƒ ()
+Symbol(vercel.ai.error): undefined
+Symbol(vercel.ai.error.AI_APICallError): undefined
+[[Prototype]]: Object

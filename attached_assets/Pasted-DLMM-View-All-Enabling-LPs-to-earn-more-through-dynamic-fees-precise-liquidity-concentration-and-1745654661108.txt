@@ -1,0 +1,271 @@
+DLMM
+View All
+Enabling LPs to earn more through dynamic fees, precise liquidity concentration, and flexible liquidity strategies.
+Pool
+TVL
+24h Vol
+24h Fee/TVL
+SOL
+USDC
+SOL-USDC
+
+Bin Step
+4
+Fee
+0.04%
+$3,991,901.68
+
+$49,794,722.00
+
+0.52%
+
+ChevronUp
+Fartcoin
+USDC
+Fartcoin -USDC
+
+Bin Step
+10
+Fee
+0.10%
+$1,193,138.76
+
+$28,135,459.00
+
+2.43%
+
+ChevronUp
+Dynamic AMM
+View All
+Constant product AMM pools that operate across the full price range and require little upkeep. In addition to swap fees, LPs receive lending yield from SOL, USDC, or USDT.
+Pool
+Type
+TVL
+24h Vol
+365d Yield/TVL
+SOL
+NOBODY
+SOL-NOBODY
+
+Volatile
+
+Dynamic
+
+Meme Pool
+
+$727.34k
+
+$4,909,470.91
+
+> 999%
+
+Eeg
+SOL
+-SOL
+
+Volatile
+
+Dynamic
+
+$75.86k
+
+$4,214,392.66
+
+-
+
+Stake2Earn Pools
+View All
+Pools with a stake-to-earn mechanism that allows top token stakers to earn swap fees from locked liquidity.
+Pool
+Market Cap
+Rewards
+Total Staked
+AIAI
+AIAI
+$
+1,202,160.00
+$
+2,293.54
+65,074,347.00
+AKIDS
+AKIDS
+$
+142,726.69
+$
+19.26
+437,766,949.00
+Pools with Farm
+View All
+Dynamic Pools that allow LPs to stake their LP token to earn farming rewards provided by token projects, on top of swap fees.
+Pool with Farm
+Type
+TVL
+24h Vol
+365d Yield/TVL
+Bonk
+SOL
+Bonk-SOL
+
+Volatile
+
+Dynamic
+
+$510.25k
+
+$246,035.03
+
+45.36%
+
+SOL
+bSOL
+SOL-bSOL
+
+
+permissioned
+Stable
+
+Dynamic
+
+LST
+
+$3.63m
+
+$208,310.17
+
+1.56%
+
+LST Pools
+View All
+Designed to enhance liquidity, capital efficiency, and yield opportunities for Liquid Staking Tokens (LSTs) and other staked assets.
+Lst Pools
+Type
+TVL
+24h Vol
+365d Yield/TVL
+SOL
+vSOL
+SOL-vSOL
+
+
+permissioned
+Stable
+
+Dynamic
+
+LST
+
+$1.14m
+
+$367,311.45
+
+2.14%
+
+SOL
+JitoSOL
+SOL-JitoSOL
+
+
+permissioned
+Stable
+
+Dynamic
+
+LST
+
+$4.8m
+
+$321,131.26
+
+1.39%
+
+Multi-Token Pools
+View All
+Efficiently combines liquidity from multiple assets into a single pool, enabling LPs to diversify their holdings and optimize capital utilization.
+Multi-Token Pools
+Type
+TVL
+24h Vol
+365d Yield/TVL
+SOL
+mSOL
+mSOL-2Pool
+
+
+permissioned
+Non-pegged
+
+Multi-token
+
+$201.18k
+
+$2,476.38
+
+0.04%
+
+USDC
+USDT
+PAI
+PAI-3Pool
+
+
+permissioned
+Multi-token
+
+$184.08k
+
+$1,162.46
+
+0.02%
+
+Launch Pools
+Meteora Launch Pool is a pool type designed for new token launches. It comes fundamentally equipped with a feature set that makes it optimal for bootstrapping liquidity for new tokens and making the tokens accessible on Jupiter and other trading integrations.
+Read Docs
+Pool
+TVL
+24h Vol
+24h Fee/TVL
+MELANIA
+USDC
+MELANIA-USDC
+
+Bin Step
+100
+Fee
+1.50%
+$66,116,759.09
+
+$2,329,948.00
+
+0.04%
+
+ChevronUp
+TRUMP
+USDC
+TRUMP-USDC
+
+Bin Step
+100
+Fee
+1.00%
+$350,992.29
+
+$5,704.36
+
+0.01%
+
+ChevronUp
+JUP
+USDC
+JUP-USDC
+
+Bin Step
+80
+Fee
+5.00%
+$7,059.69
+
+$137.28
+
+0.09%
+
+ChevronUp

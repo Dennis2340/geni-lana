@@ -1,0 +1,148 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createPhantom, Position } from "@phantom/wallet-sdk";
+import { PublicKey } from "@solana/web3.js";
+
+interface PhantomWalletContextType {
+  phantom: any;
+  publicKey: PublicKey | null;
+  connected: boolean;
+  connecting: boolean;
+  connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
+}
+
+const PhantomWalletContext = createContext<PhantomWalletContextType | undefined>(undefined);
+
+export function PhantomWalletProvider({ children }: { children: ReactNode }) {
+  const [phantom, setPhantom] = useState<any>(null);
+  const [publicKey, setPublicKey] = useState<PublicKey | null>(null);
+  const [connected, setConnected] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+
+  // For demo purposes - create a mock public key
+  const createMockPublicKey = () => {
+    return new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
+  };
+
+  useEffect(() => {
+    const initWallet = async () => {
+      try {
+        // Try to initialize Phantom wallet as a popup
+        try {
+          const phantomInstance = await createPhantom({
+            position: Position.topRight,
+            namespace: "meteora-ai-agent",
+          });
+          
+          setPhantom(phantomInstance);
+          
+          // Check if already connected
+          try {
+            if (phantomInstance.solana) {
+              // Try to connect silently if the user has previously connected
+              const account = await phantomInstance.solana.connect();
+              if (account) {
+                setPublicKey(phantomInstance.solana.publicKey);
+                setConnected(true);
+              }
+            }
+          } catch (error) {
+            // Silent connection failed, user needs to connect manually
+            console.log("Not previously connected");
+          }
+        } catch (error) {
+          console.log("Demo mode: Will use mock wallet");
+          // Create mock wallet for the demo
+          const mockPublicKey = createMockPublicKey();
+          setPublicKey(mockPublicKey);
+          // Don't set connected yet - will require explicit connect action
+        }
+      } catch (error) {
+        console.error("Error initializing wallet:", error);
+      }
+    };
+
+    initWallet();
+  }, []);
+
+  const connect = async () => {
+    try {
+      setConnecting(true);
+      
+      if (phantom?.solana) {
+        // Try to connect using real Phantom
+        phantom.show(); // Show the wallet UI
+        
+        try {
+          const account = await phantom.solana.connect();
+          if (account) {
+            setPublicKey(phantom.solana.publicKey);
+            setConnected(true);
+            return;
+          }
+        } catch (error) {
+          console.error("Error connecting to Phantom wallet:", error);
+          // Continue to mock connection if real connection fails
+        }
+      }
+      
+      // If no phantom wallet available or connection failed, use mock for demo
+      console.log("Using mock wallet for demo");
+      // Create mock wallet with demo address if not already created
+      if (!publicKey) {
+        setPublicKey(createMockPublicKey());
+      }
+      setConnected(true);
+      
+    } catch (error) {
+      console.error("Error connecting to wallet:", error);
+      throw error;
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  const disconnect = async () => {
+    try {
+      if (phantom?.solana) {
+        // Try to disconnect from real wallet
+        try {
+          await phantom.solana.disconnect();
+        } catch (error) {
+          console.error("Error disconnecting from Phantom wallet:", error);
+        }
+      }
+      
+      // Always reset state even if no real wallet
+      setPublicKey(null);
+      setConnected(false);
+    } catch (error) {
+      console.error("Error in wallet disconnect:", error);
+    }
+  };
+
+  return (
+    <PhantomWalletContext.Provider
+      value={{
+        phantom,
+        publicKey,
+        connected,
+        connecting,
+        connect,
+        disconnect,
+      }}
+    >
+      {children}
+    </PhantomWalletContext.Provider>
+  );
+}
+
+export function usePhantomWallet() {
+  const context = useContext(PhantomWalletContext);
+  if (context === undefined) {
+    throw new Error("usePhantomWallet must be used within a PhantomWalletProvider");
+  }
+  return context;
+}

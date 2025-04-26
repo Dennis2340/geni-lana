@@ -1,0 +1,12 @@
+[vite] connecting...
+DOMException {}
+
+Module "buffer" has been externalized for browser compatibility. Cannot access "buffer.Buffer" in client code. See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+Transaction error: 
+Error {}
+message: "Wallet not connected"
+stack: "Error: Wallet not connected↵ at executeMeteoraTransaction (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/src/utils/meteora.ts?t=1745686432333:6:11)↵ at handleTransactionConfirm (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/src/components/Chat.tsx?t=1745686432333:186:28)↵ at handleConfirmClick (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/src/components/TransactionPreview.tsx?t=1745686432316:90:13)↵ at HTMLUnknownElement.callCallback2 (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=65a280bc:3674:22)↵ at Object.invokeGuardedCallbackDev (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=65a280bc:3699:24)↵ at invokeGuardedCallback (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=65a280bc:3733:39)↵ at invokeGuardedCallbackAndCatchFirstError (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=65a280bc:3736:33)↵ at executeDispatch (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=65a280bc:7014:11)↵ at processDispatchQueueItemsInOrder (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=65a280bc:7034:15)↵ at processDispatchQueue (https://90db4d41-1625-43f8-97bf-fb89da7b2116-00-357wfwplcn423.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=65a280bc:7043:13)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+

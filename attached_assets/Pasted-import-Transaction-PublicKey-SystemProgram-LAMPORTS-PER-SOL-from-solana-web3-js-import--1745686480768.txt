@@ -1,0 +1,70 @@
+import { Transaction, PublicKey, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { toast } from "sonner";
+import { nanoid } from "nanoid";
+
+// Stub for Meteora SDK (to be replaced with actual implementation)
+// This is a placeholder since the actual DefiPlugin has browser compatibility issues
+export const executeMeteoraTransaction = async (phantomWallet: any, riskLevel: number): Promise<string> => {
+  if (!phantomWallet?.solana?.publicKey) {
+    throw new Error("Wallet not connected");
+  }
+  
+  try {
+    // Create a dummy transaction to simulate Meteora integration
+    // In a real implementation, we would use Meteora's SDK here
+    const transaction = new Transaction();
+    
+    // Add a simple system transfer to simulate a transaction
+    // This is just a placeholder - in production this would be Meteora's instruction
+    transaction.add(
+      SystemProgram.transfer({
+        fromPubkey: phantomWallet.solana.publicKey,
+        toPubkey: phantomWallet.solana.publicKey, // Send to self
+        lamports: 10000, // Very small amount (0.00001 SOL)
+      })
+    );
+    
+    // Sign and send the transaction
+    const signedTransaction = await phantomWallet.solana.signTransaction(transaction);
+    const signature = await phantomWallet.solana.sendTransaction(signedTransaction);
+    
+    // Log the result
+    console.log("Transaction successful:", signature);
+    
+    // Show toast
+    toast.success("Liquidity position created successfully!");
+    
+    // Return signature or hash
+    return signature || nanoid(10); // Return TX signature or fallback to random ID
+  } catch (error) {
+    console.error("Error creating Meteora position:", error);
+    toast.error("Failed to create liquidity position");
+    throw error;
+  }
+};
+
+// Function to compute price ranges based on risk level
+export const calculatePriceRange = (currentPrice: number, riskLevel: number) => {
+  const rangePercentage = riskLevel * 1.5; // Higher risk = wider range
+  const minPrice = currentPrice * (100 - rangePercentage) / 100;
+  const maxPrice = currentPrice * (100 + rangePercentage) / 100;
+  
+  return {
+    minPrice: minPrice.toFixed(2),
+    maxPrice: maxPrice.toFixed(2),
+    rangePct: rangePercentage
+  };
+};
+
+// Function to get fee tier based on risk level
+export const getFeeTier = (riskLevel: number) => {
+  if (riskLevel <= 5) return "0.05%";
+  if (riskLevel <= 10) return "0.3%";
+  return "1%";
+};
+
+// Function to calculate estimated APR
+export const calculateAPR = (riskLevel: number) => {
+  // Simple formula - in real app would be based on pool data
+  return (3 + riskLevel * 0.5).toFixed(1);
+};

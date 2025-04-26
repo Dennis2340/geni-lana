@@ -1,0 +1,61 @@
+import nodemailer from 'nodemailer';
+import "dotenv/config";
+
+export async function sendEmail(parameters) {
+  try {
+    // Handle nested recipient and body structures
+    const recipient = typeof parameters.recipient === 'object' ? parameters.recipient.email : parameters.recipient;
+    let body = typeof parameters.body === 'object' ? parameters.body.text : parameters.body;
+
+    // Append signature if included
+    if (typeof parameters.body === 'object' && parameters.body.signature?.include === 'true') {
+      const { sender_name, position, company, contact_info } = parameters.body.signature;
+      body += `\n\n${sender_name}\n${position}\n${company}\n${contact_info}`;
+    }
+
+    // Default body if none provided
+    const emailBody = body || 'No DeFi tips available at this time. Please try again later.';
+
+    // Validate required parameters
+    if (!recipient || !parameters.subject) {
+      throw new Error('Missing email parameters: recipient or subject');
+    }
+
+    // Log inputs for debugging
+    console.log('sendEmail Inputs:', { recipient, subject: parameters.subject, body: emailBody });
+
+    // Define Nodemailer transporter with Gmail SMTP
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.EMAIL_USER || 'kamaradennis36@gmail.com',
+        pass: process.env.MAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'kamaradennis36@gmail.com',
+      to: recipient,
+      subject: parameters.subject || 'DeFi Tips Notification',
+      text: emailBody,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Email sent to ${recipient}:`, info.messageId);
+    return {
+      status: 'success',
+      message: `Email sent to ${recipient}`,
+      parameters: { recipient, subject: parameters.subject, body: emailBody },
+    };
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return {
+      status: 'error',
+      message: `Failed to send email: ${error.message}`,
+      parameters,
+    };
+  }
+}
